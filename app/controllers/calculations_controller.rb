@@ -11,13 +11,13 @@ class CalculationsController < ApplicationController
     # ================================================================================
 
 
-    @character_count_with_spaces = "Replace this string with your answer."
+    @character_count_with_spaces = @text.length
 
-    @character_count_without_spaces = "Replace this string with your answer."
+    @character_count_without_spaces = @text.gsub(" ","").length
 
-    @word_count = "Replace this string with your answer."
+    @word_count = @text.split.count
 
-    @occurrences = "Replace this string with your answer."
+    @occurrences = @text.split.count(@special_word)
   end
 
   def loan_payment
@@ -25,14 +25,16 @@ class CalculationsController < ApplicationController
     @years = params[:number_of_years].to_i
     @principal = params[:principal_value].to_f
 
+
     # ================================================================================
     # Your code goes below.
     # The annual percentage rate the user input is in the decimal @apr.
     # The number of years the user input is in the integer @years.
     # The principal value the user input is in the decimal @principal.
     # ================================================================================
-
-    @monthly_payment = "Replace this string with your answer."
+    @monthly_apr = @apr /100 / 12
+    @months = @years * 12
+    # I cant get this to work and it's making me insane...@monthly_payment = @principal (@monthly_apr(1 + @monthly_apr)**@months / (1+ @monthly_apr)**@months - 1
   end
 
   def time_between
@@ -48,42 +50,49 @@ class CalculationsController < ApplicationController
     #   number of seconds as a result.
     # ================================================================================
 
-    @seconds = "Replace this string with your answer."
-    @minutes = "Replace this string with your answer."
-    @hours = "Replace this string with your answer."
-    @days = "Replace this string with your answer."
-    @weeks = "Replace this string with your answer."
-    @years = "Replace this string with your answer."
+    @seconds = @ending - @starting
+    @minutes = @seconds / 60
+    @hours = @minutes / 60
+    @days = @hours / 24
+    @weeks = @days / 7
+    @years = @weeks / 52
   end
 
   def descriptive_statistics
     @numbers = params[:list_of_numbers].gsub(',', '').split.map(&:to_f)
+
 
     # ================================================================================
     # Your code goes below.
     # The numbers the user input are in the array @numbers.
     # ================================================================================
 
-    @sorted_numbers = "Replace this string with your answer."
+    @sorted_numbers = @numbers.sort
 
-    @count = "Replace this string with your answer."
+    @count = @numbers.length
 
-    @minimum = "Replace this string with your answer."
+    @minimum = @sorted_numbers.first
 
-    @maximum = "Replace this string with your answer."
+    @maximum = @sorted_numbers.last
 
-    @range = "Replace this string with your answer."
+    @range = @sorted_numbers.last.to_i - @sorted_numbers.first.to_f
 
-    @median = "Replace this string with your answer."
+    @mid = (@count - 1) / 2.0
 
-    @sum = "Replace this string with your answer."
+    @median = (@sorted_numbers[@mid.floor] + @sorted_numbers[@mid.ceil]) / 2.0
 
-    @mean = "Replace this string with your answer."
+    @sum = @numbers.inject(:+)
 
-    @variance = "Replace this string with your answer."
+    @mean = @sum / @count
 
-    @standard_deviation = "Replace this string with your answer."
+    @variance = @sorted_numbers.inject {|sum,x| sum+(x-@mean)**2}/@count
 
-    @mode = "Replace this string with your answer."
-  end
+    @standard_deviation = Math.sqrt(@variance)
+    ##something is off with my variance and SD but I'm not sure what...
+
+    @freq = @numbers.inject(Hash.new(0)) { |h,v| h[v] += 1; h }
+
+    @mode = @numbers.max_by { |v| @freq[v] }
+
+    end
 end
